@@ -8,19 +8,19 @@ CC=${TARGET}-gcc
 LD=${TARGET}-ld
 AR=${TARGET}-ar
 CFLAGS= -std=c11 -ffreestanding -O2 -Wall -Wextra -I${P_ROOT}/kernel/include/ -I${P_ROOT}/libc/include/
+#CFLAGS := ${CFLAGS} -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow #64bit
 LDFLAGS= -ffreestanding -O2 -nostdlib
 
 export
 
-.PHONY: run build clean help
+.PHONY: run all clean help
 
-build: kernel.bin $(shell find kernel -name *.c)
-	echo $^
+all: kernel.bin
 
 libc/libc.a: $(shell find libc -name *.c)
 	make -C libc/ build
 
-kernel.bin: libc/libc.a
+kernel.bin: libc/libc.a $(shell find kernel -name *.c -o -name *.s)
 	make -C kernel/ build
 
 run: kernel.bin

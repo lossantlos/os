@@ -26,8 +26,10 @@ _start:
 	# Setting up a stack, setting the esp register to point to the top of reserved place for stack
 	movl $stack_top, %esp
 
+	call kernel_early
+
 	call kernel_main
-	
+
 	cli
 .Lhang:
 	hlt

@@ -2,6 +2,11 @@
 #ifndef _VGA_H
 #define _VGA_H
 
+#include <stdint.h>
+#include <stddef.h>
+
+#include <kernel/asm.h>
+
 enum vga_color
 {
 	COLOR_BLACK = 0,
@@ -37,5 +42,11 @@ static inline uint16_t make_vgaentry(char c, uint8_t color)
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 
+static const uint16_t *VGA_PTR = (uint16_t *) 0xB8000;
+
+void vga_init();
+void vga_clear();
+void vga_putentry(uint16_t vgaentry, uint8_t x, uint8_t y);
+void vga_setcursor(uint8_t x, uint8_t y);
 
 #endif
