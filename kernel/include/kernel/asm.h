@@ -1,4 +1,5 @@
-
+#include <stdint.h>
+#include <stddef.h>
 
 static inline void outb(uint16_t port, uint8_t val)
 {
@@ -16,10 +17,12 @@ static inline uint8_t inb(uint16_t port)
     return ret;
 }
 
-static inline void io_wait(void)
+static inline void sti()
 {
-    /* TODO: This is probably fragile. */
-    __asm__ volatile ( "jmp 1f\n\t"
-                   "1:jmp 2f\n\t"
-                   "2:" );
+    __asm__ volatile ( "sti" );
+}
+
+static inline void cli()
+{
+    __asm__ volatile ( "cli" );
 }

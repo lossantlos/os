@@ -8,8 +8,9 @@ CC=${TARGET}-gcc
 LD=${TARGET}-ld
 AR=${TARGET}-ar
 CFLAGS= -std=c11 -ffreestanding -O2 -Wall -Wextra -I${P_ROOT}/kernel/include/ -I${P_ROOT}/libc/include/
-#CFLAGS := ${CFLAGS} -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow #64bit
 LDFLAGS= -ffreestanding -O2 -nostdlib
+
+include kernel/arch/${ARCH}/make.config
 
 export
 
@@ -24,7 +25,7 @@ kernel.bin: libc/libc.a $(shell find kernel -name *.c -o -name *.s)
 	make -C kernel/ build
 
 run: kernel.bin
-	${QEMU} -kernel $^ -m 1024 -monitor stdio
+	${QEMU} -kernel $^ -m 1024 -monitor stdio -soundhw pcspk
 
 clean:
 	make -C libc/ clean
@@ -34,5 +35,5 @@ help:
 	@echo "make [option]\n\
 options:\n\
 \trun\tbuild kernel and run in qemu\n\
-\tbuild\tcompile and link kernel\n\
-\tclean\tclean executable and object files"
+\tclean\tremove kernel executable and object files\n\
+without options: compile and link the kernel"

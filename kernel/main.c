@@ -1,20 +1,40 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <kernel/asm.h>
+
 #include <kernel/tty.h>
 #include <stdlib.h>
 
+#include <kernel/gdt.h>
+#include <kernel/idt.h>
+
 void kernel_early()
 {
+	cli();
 	vga_init();
 	tty_init();
+	gdt_init();
+	idt_init();
+	isrs_init();
+	irq_init();
+	timer_init();
+	sti();
 }
+
+void keyboard_handler(struct regs *r)
+{
+    unsigned char scancode = inb(0x60);
+	printf(".");
+}
+
 
 void kernel_main()
 {
-	printk("Initialized!\n\n");
+	printk("Initialized!\n");
+	beep();
 
+	irq_handler_set(1, keyboard_handler);
 
-	int a = 100;
-	printf("2\t%b\n8\t%o\n10\t%i\n16\t%x\nptr\t%p\n", a, a, a, a, &a);
+	while(1);
 }
