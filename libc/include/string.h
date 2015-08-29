@@ -1,19 +1,19 @@
-#ifndef _STRINGS_H
-#define _STRINGS_H
+#ifndef _STRING_H
+#define _STRING_H
 
 #warning external headers
 #include <stdint.h>
 #include <stddef.h>
 
 //memory
-int memcmp(void *ptr1, void *ptr2, size_t n);
-void *memcpy(void *dest, const void *src, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
+void *memcpy(void *dest, void *src, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
 void *memset(void *dest, const int c, size_t n);
 
 //string
-int strcmp(char *s1, char *s2);
-//void *strcpy();
+int strcmp(const char *s1, const char *s2);
+void *strcpy(void *dest, void *src);
 
 size_t strlen(const char *s);
 

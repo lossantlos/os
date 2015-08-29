@@ -21,6 +21,11 @@ void vga_put(char c, uint8_t color, uint8_t x, uint8_t y)
     vgabuf[y * VGA_WIDTH + x] = make_vgaentry(c, color);
 }
 
+void vga_scrool() //scrool one line
+{
+    memcpy(vgabuf, (vgabuf+VGA_WIDTH), VGA_WIDTH*VGA_HEIGHT*sizeof(uint16_t));
+}
+
 void vga_setcursor(uint8_t x, uint8_t y)
 {
     uint16_t p = (uint16_t) (y * VGA_WIDTH) + x;

@@ -2,3 +2,4 @@
 *.[ao]
 kernel.bin
 *.DS_Store
+*.tar

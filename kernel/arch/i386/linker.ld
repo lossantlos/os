@@ -1,43 +1,66 @@
-/* The bootloader will look at this image and start execution at the symbol
-   designated as the entry point. */
-ENTRY(_start)
+ENTRY(entry)
+OUTPUT_FORMAT(elf32-i386)
 
-/* Tell where the various sections of the object files will be put in the final
-   kernel image. */
+kernel_phys_start = 0x1M;
+kernel_virtual_offset = 0xC0000000;
+
 SECTIONS
 {
-	/* Begin putting sections at 1 MiB, a conventional place for kernels to be
-	   loaded at by the bootloader. */
-	. = 1M;
+/*---------------------------------------------
+| PHYSICAL
++----------------------------------------------*/
+    . = kernel_phys_start;
 
-	/* First put the multiboot header, as it is required to be put very early
-	   early in the image or the bootloader won't recognize the file format.
-	   Next we'll put the .text section. */
-	.text BLOCK(4K) : ALIGN(4K)
+    .text_phys ALIGN(4K) :
+    {
+        *(.multiboot)
+        *entry*.o(.text)
+    }
+
+    .data_phys ALIGN(4K) :
+    {
+        *entry*.o(.rodata)
+        *entry*.o(.data)
+        *entry*.o(.bss)
+        *entry*.o(COMMON)
+        *entry*.o(.bootstrap_stack)
+    }
+
+/*---------------------------------------------
+| VIRTUAL
++----------------------------------------------*/
+	. += kernel_virtual_offset;
+    kernel_virtual_start = .;
+
+	.text ALIGN(4K) : AT(ADDR(.text) - kernel_virtual_offset)
 	{
-		*(.multiboot)
+        *(.higher_half_text)
 		*(.text)
 	}
 
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - kernel_virtual_offset)
 	{
 		*(.rodata)
 	}
 
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
+	.data ALIGN(4K) : AT(ADDR(.data) - kernel_virtual_offset)
 	{
 		*(.data)
 	}
 
 	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss ALIGN(4K) : AT(ADDR(.bss) - kernel_virtual_offset)
 	{
 		*(COMMON)
 		*(.bss)
 		*(.bootstrap_stack)
 	}
+    kernel_virtual_end = .;
+
+/*    /DISCARD/ :
+    {
+        *(*)
+    }*/
 
 	/* The compiler may produce other sections, by default it will put them in
 	   a segment with the same name. Simply add stuff here as needed. */

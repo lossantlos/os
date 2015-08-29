@@ -1,8 +1,10 @@
-#include <stdint.h>
+
 #include <stddef.h>
 #include <kernel/asm.h>
 
-static void play_sound(uint32_t nFrequence)
+#include <pcspkr.h>
+
+void play_sound(uint32_t nFrequence)
 {
     //set the PIT to the desired frequency
     uint32_t div = 1193180 / nFrequence;
@@ -15,7 +17,7 @@ static void play_sound(uint32_t nFrequence)
 	if(tmp != (tmp | 3)) outb(0x61, tmp | 3);
 }
 
-static void nosound()
+void nosound()
 {
 	outb(0x61, (uint8_t) (inb(0x61) & 0xFC));
 }
@@ -23,6 +25,6 @@ static void nosound()
 void beep()
 {
     play_sound(1000);
-	timer_wait(7);
+	pic_wait(7);
     nosound();
  }

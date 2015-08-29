@@ -1,30 +1,31 @@
 #include <kernel/regs.h>
 #include <kernel/irq.h>
 
-volatile static unsigned int tt = 0; //timer ticks
+volatile static unsigned int tt = 0; //pic ticks
 
-void timer_handler(struct regs *r)
+void pic_handler(struct regs *r)
 {
     tt++; //18.222Hz
 }
 
-void timer_init()
+void pic_init()
 {
-    irq_handler_set(0, timer_handler);
+    irq_handler_set(IRQ0, pic_handler);
 }
 
-void timer_ticks()
+void pic_ticks()
 {
     return tt;
 }
 
-void timer_reset()
+void pic_reset()
 {
     tt = 0;
 }
 
-void timer_wait(int ticks)
+void pic_wait(int ticks)
 {
     #warning TODO repair BUG caused by variable overflow
     for(unsigned int t = tt + ticks; tt < t;);
+    __asm__("int $0x81");
 }
