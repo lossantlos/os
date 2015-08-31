@@ -6,32 +6,27 @@
 .set CHECKSUM, -(MAGIC + FLAGS) # checksum of above, to prove we are multiboot
 
 # Declare a header as in the Multiboot Standard
-.section .multiboot
+.section .multiboot_header, "a", @progbits
 .align 4
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
 
-# Reserve a stack for the initial thread [stack pointer register (esp)]
-.section .bootstrap_stack, "aw", @nobits
-stack_bottom:
-.skip 16384 # 16 KiB
-stack_top:
 
-
-.section .text
+.section .text_phys
 .global entry
 .type entry, @function
 
 # The kernel entry point
 entry:
     # Setting up a stack
-	movl $stack_top, %esp
-    movl $stack_top, %ebp
+	movl $stack_phys_addr, %esp
+    movl $stack_phys_addr, %ebp
 
-    # Push pointer to multiboot and magic
-    pushl %ebx
-	pushl %eax
+
+    # Arguments for kernel early
+    pushl %ebx # Pointer to multiboot header
+	pushl %eax # Magic
 
     # Map 0-896MB to 3072-3968
     call paging_prepare
@@ -39,10 +34,10 @@ entry:
 
     # Switch stack to Higher Half - TODO variable offset
     movl %esp, %eax
-    add $0xC0000000, %eax
+	add $kernel_virtual_offset, %eax
     mov %eax, %esp
     movl %ebp, %eax
-    add $0xC0000000, %eax
+	add $kernel_virtual_offset, %eax
     mov %eax, %ebp
 
     # Jump to Higher Half
@@ -62,7 +57,7 @@ enable_paging:
     movl %eax, %cr0
     ret
 
-.section .higher_half_text
+.section .text
 higher_half:
     call kernel_early
     call kernel_main

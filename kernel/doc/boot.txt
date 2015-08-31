@@ -1,0 +1,12 @@
+
+Booting process
+===============
+
+1. bootloader is loading the kernel to the RAM (to 1MB exactly)
+2. bootloader is giving control to the kernel (jumping to entry point)
+3. setting up ebp and esp register for stack
+4. pushing multiboot header and magic number (in eax and ebx) to stack
+5. initializing paging
+6. setting up stack to higher half memory
+7. jumping to higher half
+8. calling kernel_early and kernel main

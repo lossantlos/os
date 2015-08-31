@@ -1,7 +1,8 @@
 #include <stdint.h>
 
-uint32_t pd[1024];
+uint32_t pd[1024] __attribute__ ((section(".data_phys")));
 
+void paging_prepare(void) __attribute__ ((section(".text_phys")));
 void paging_prepare(void)
 {
     // Set all pages to non-present

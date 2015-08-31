@@ -2,17 +2,13 @@
 #include <stddef.h>
 
 #include <kernel/asm.h>
+#include <kernel/kernel.h>
 
 #include <kernel/tty.h>
 #include <stdlib.h>
 
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
-
-
-
-
-//void kernel_early()
 
 #include "arch/i386/multiboot.h"
 
@@ -31,20 +27,24 @@ void kernel_early(uint32_t magic, uint32_t addr)
 	sti();
 	syscall_init();
 
-//	printf("Magic: %#x (%p)\n", magic, addr);
-	multiboot_info_t *mbi = (multiboot_info_t *) addr;
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+		printf("Magic \'%#x\' invalid!\n", magic);
+		panic("Can't get memory map!\n");
+	} else {
+		multiboot_info_t *mbi = (multiboot_info_t *) addr;
 
-	const char *mmap_type[] = {
-		"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
-	};
+		const char *mmap_type[] = {
+			"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
+		};
 
-	multiboot_memory_map_t *mmap = mbi->mmap_addr;
-	printf("System RAM:\n");
-	for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
-		printf("  %#011x - %#011x %12i bytes  |  %s\n",
-		(uint32_t) mmap[x].addr,
-		(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr, (uint32_t) mmap[x].len,
-		mmap_type[(uint32_t) mmap[x].type]);
+		multiboot_memory_map_t *mmap = mbi->mmap_addr;
+		printf("System RAM:\n");
+		for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
+			printf("  %#011x - %#011x %12i bytes  |  %s\n",
+			(uint32_t) mmap[x].addr,
+			(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr, (uint32_t) mmap[x].len,
+			mmap_type[(uint32_t) mmap[x].type]);
+	}
 }
 
 
@@ -253,9 +253,13 @@ void task_new(void (*fce)())
 	last->next = task;
 }*/
 
+extern uint32_t *kernel_end;
+
 void kernel_main()
 {
 	printk("Initialized!\n\a");
+
+	//printf("kernel_end = %x\n", &kernel_end);
 
 	initrd_init();
 	read_rtc();
@@ -286,6 +290,7 @@ void kernel_main()
 //	__asm__ ("int $71");
 //	test();
 //	__asm__ ("int $0x80");
+
 
 	shell();
 

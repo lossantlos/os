@@ -3,6 +3,7 @@
 ARCH=i386
 TARGET=${ARCH}-elf
 QEMU= qemu-system-x86_64
+QEMU_FLAGS = -m 1024 -monitor stdio -soundhw pcspk
 
 P_ROOT=$(PWD)
 
@@ -10,14 +11,20 @@ CC=${TARGET}-gcc
 LD=${TARGET}-ld
 AR=${TARGET}-ar
 CFLAGS= -std=c11 -nostartfiles -nodefaultlibs -ffreestanding -O2 -Wall -Wextra\
-		-I${P_ROOT}/kernel/include/ -I${P_ROOT}/libc/include/ -g
-LDFLAGS= -ffreestanding -O2 -nostdlib -g
+		-I${P_ROOT}/kernel/include/ -I${P_ROOT}/libc/include/
+LDFLAGS= -ffreestanding -O2 -nostdlib
+
+ifeq (${DEBUG},1)
+	CFLAGS += -g -D DEBUG
+	LDFLAGS += -g
+	QEMU_FLAGS += -s -S
+endif
 
 include kernel/arch/${ARCH}/make.config
 
 export
 
-.PHONY: run all clean help
+.PHONY: run all clean help debug debug_run
 
 all: kernel.bin
 
@@ -31,12 +38,14 @@ kernel.bin: libc/libc.a $(shell find kernel -name *.c -o -name *.s) initrd.o pac
 	make -C kernel/ build
 
 run: kernel.bin
-	${QEMU} -kernel $^ -m 1024 -monitor stdio -soundhw pcspk
+	${QEMU} ${QEMU_FLAGS} -kernel $^
 
 clean:
 	rm -rf *.o initrd.tar binary
 	make -C libc/ clean
 	make -C kernel/ clean
+
+
 
 initrd.o: initrd.tar
 	${TARGET}-ld -r -b binary -o $@ $^
@@ -46,8 +55,10 @@ initrd.tar: ./initrd/
 	tar -c -f $@ $^ -C $^
 
 help:
-	@echo "make [option]\n\
+	@echo "make [option] <vars>\n\
 options:\n\
-\trun\tbuild kernel and run in qemu\n\
-\tclean\tremove kernel executable and object files\n\
-without options: compile and link the kernel"
+   run          run kernel in qemu\n\
+   clean        remove kernel executable and object files\n\
+   <none>       compile and link the kernel\n\
+vars:\n\
+   DEBUG=1      debugging enabled"

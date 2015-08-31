@@ -1,6 +1,8 @@
 
 #include <stdint.h>
 
+#include <kernel/kernel.h>
+
 extern uint32_t pd[1024];
 
 extern void loadPageDirectory(unsigned int*);
@@ -37,7 +39,6 @@ uint32_t first_page_table[1024] __attribute__((aligned(4096)));
 #include <kernel/regs.h>
 #include <kernel/asm.h>
 
-#define panic(msg) {printf("KERNEL PANIC!!! %s:%i: %s\n", __FILE__, __LINE__, msg); cli(); for(;;);};
 
 void *page_fault(struct regs *r)
 {
