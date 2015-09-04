@@ -1,3 +1,3 @@
 
-invaders.a: game.o
+invaders.a: game.o menu.o
 	#$(AR) rcs $@ $^

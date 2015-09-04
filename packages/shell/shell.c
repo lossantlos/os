@@ -67,6 +67,7 @@ extern int shell_cmd_invaders(int argc, char **argv);
 extern int shell_cmd_echo(int argc, char **argv);
 extern int shell_cmd_cpuid(int argc, char **argv);
 extern int shell_cmd_memdump(int argc, char **argv);
+extern int shell_cmd_cat(int argc, char **argv);
 
 #define CMD(NAME) { #NAME, &shell_cmd_ ## NAME }
 struct
@@ -77,6 +78,8 @@ struct
 	CMD(echo),
 	CMD(help),
 	CMD(invaders),
+//	CMD(sudoku),
+	CMD(cat),
 	CMD(author),
 	CMD(halt),
 	CMD(cpuid),

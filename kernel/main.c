@@ -147,16 +147,7 @@ void initrd_init()
 }
 
 //-------------------------------
-#include <dirent.h>
 
-DIR *opendir(const char *path)
-{}
-
-struct dirent *readdir(DIR *dir)
-{}
-
-int closedir(DIR *dir)
-{}
 //---------------------------------
 
 
@@ -255,8 +246,91 @@ void task_new(void (*fce)())
 
 extern uint32_t *kernel_end;
 
+typedef struct {
+	//read, write, open, close
+} fops;
+
+#define ssize_t uint32_t
+
+ssize_t tty_write(struct node_t *n, const void *buf, ssize_t nbyte)
+{
+	char *b = buf;
+	size_t x;
+	for (x = 0; x < nbyte; x++)
+		putchar(b[x]);
+	return x;
+}
+
+typedef struct node_t {
+	char *name;
+	ssize_t (*write)(struct node_t*, const void*, ssize_t);
+	ssize_t (*read)(struct node_t*, const void*, ssize_t);
+} node_t;
+uint32_t nodes = 0;
+node_t *fds[10];
+
+ssize_t vfs_tar_read(node_t *n, const void *buf, ssize_t nbyte)
+{
+	tar_file_read(_binary_initrd_tar_start, n->name, buf, nbyte);
+	return 0;
+}
+
+uint32_t open(const char *path, uint32_t oflag)
+{
+	node_t *n = kmalloc(sizeof(node_t));
+	if(!strcmp(path, "/tty"))
+	{
+		n->name = kmalloc(strlen(path));
+		strcpy(n->name, path);
+		n->write = tty_write;
+	} else {
+		n->name = kmalloc(strlen(path));
+		strcpy(n->name, path);
+		n->read = vfs_tar_read;
+	}
+	fds[++nodes] = n;
+	return nodes;
+}
+
+
+
+ssize_t write(uint32_t fd, const void *buf, ssize_t nbyte)
+{
+	if(fds[fd]->write)
+		return fds[fd]->write(fds[fd], buf, nbyte);
+}
+
+ssize_t read(uint32_t fd, const void *buf, ssize_t nbyte)
+{
+	if(fds[fd]->read)
+		return fds[fd]->read(fds[fd], buf, nbyte);
+}
+
+//-----------------------------------
+
+
+
+//-----------------------------------
+
+/**
+
+kernel main
+
+*/
+
 void kernel_main()
 {
+	uint32_t f1 = open("/tty", 0);
+	write(f1, "test\n", 5);
+
+	char *b = kmalloc(20 * sizeof(char));
+	uint32_t f2 = open("initrd/file1", 0);
+	read(f2, b, 20);
+
+	write(f1, b, 20);
+
+	printf("\n");
+
 	printk("Initialized!\n\a");
 
 	//printf("kernel_end = %x\n", &kernel_end);
@@ -264,11 +338,15 @@ void kernel_main()
 	initrd_init();
 	read_rtc();
 
-	DIR *d = opendir("/");
+/*	DIR *d = opendir("/");
 	struct dirent *de;
 	while((de = readdir(d)) != NULL)
 		printf("%s\n", de->name);
-	closedir(d);
+	closedir(d);*/
+
+//	tar_list_all(_binary_initrd_tar_start);
+
+
 
 	//memmove
 
@@ -290,8 +368,8 @@ void kernel_main()
 //	__asm__ ("int $71");
 //	test();
 //	__asm__ ("int $0x80");
-
-
+//	extern int shell_cmd_invaders(int, char **);
+//	shell_cmd_invaders(0, NULL);
 	shell();
 
 	while(1);

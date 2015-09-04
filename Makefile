@@ -24,9 +24,12 @@ include kernel/arch/${ARCH}/make.config
 
 export
 
-.PHONY: run all clean help debug debug_run
+.PHONY: run all clean help debug debug_run doc
 
 all: kernel.bin
+
+doc: ./config.dox
+	doxygen $<
 
 libc/libc.a: $(shell find libc -name *.c)
 	make -C libc/ build
@@ -41,7 +44,7 @@ run: kernel.bin
 	${QEMU} ${QEMU_FLAGS} -kernel $^
 
 clean:
-	rm -rf *.o initrd.tar binary
+	rm -rf *.o initrd.tar kernel.bin doc/doxygen-out/ 
 	make -C libc/ clean
 	make -C kernel/ clean
 

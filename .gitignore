@@ -3,3 +3,4 @@
 kernel.bin
 *.DS_Store
 *.tar
+doc/doxygen-out/

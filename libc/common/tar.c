@@ -43,15 +43,26 @@ unsigned int getsize(const char *in)
     return size;
 }
 
-uint32_t tar_header_address(const char *path)
+uint32_t tar_header_address(const char *archive, const char *path)
 {
-    #warning TODO write
-    return 5;
+    tar_header_t *a;
+    a->filename[0]='0';
+    unsigned int off = 0;
+    while(1)
+    {
+        a = (tar_header_t *)(archive + off);
+        if(!a->filename[0]) break;
+        if(!strcmp(path, a->filename)) return off / 512;
+        unsigned int size = getsize(a->size);
+        off += ((size / 512) + 1) * 512;
+        if (size % 512) off += 512;
+    }
+    return 0;
 }
 
 uint32_t tar_file_size(const char *archive, const char *path)
 {
-    uint32_t address = tar_header_address(path);
+    uint32_t address = tar_header_address(archive, path);
     tar_header_t *a = (tar_header_t *)(archive + address * 512);
     if(!a->filename[0]) return 0;
     return getsize(a->size);
@@ -59,7 +70,7 @@ uint32_t tar_file_size(const char *archive, const char *path)
 
 uint32_t tar_file_read(const char *archive, const char *path, char *buf, uint32_t count)
 {
-    uint32_t address = tar_header_address(path);
+    uint32_t address = tar_header_address(archive, path);
 
     tar_header_t *h = (tar_header_t *)(archive + address * 512);
 
