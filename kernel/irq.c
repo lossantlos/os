@@ -187,5 +187,4 @@ void irq_handler(struct regs *r)
     {
         printf("Interrupt %i!\n", r->int_no);
     }
-
 }

@@ -15,7 +15,7 @@ void gdt_init()
    gdt_flush((uint32_t) &gdt_ptr);
 }
 
-void gdt_set_gate(sint32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
+void gdt_set_gate(uint32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
    gdt_entries[num].base_low	= (base & 0xFFFF);
    gdt_entries[num].base_middle = (base >> 16) & 0xFF;

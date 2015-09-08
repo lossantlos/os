@@ -1,23 +1,15 @@
-#PATH := /Users/kuba/Desktop/x86_64-elf/bin/:$PATH
-
-ARCH=i386
-TARGET=${ARCH}-elf
-QEMU= qemu-system-x86_64
-QEMU_FLAGS = -m 1024 -monitor stdio -soundhw pcspk
+# Makefile for my os
 
 P_ROOT=$(PWD)
 
-CC=${TARGET}-gcc
-LD=${TARGET}-ld
-AR=${TARGET}-ar
-CFLAGS= -std=c11 -nostartfiles -nodefaultlibs -ffreestanding -O2 -Wall -Wextra\
-		-I${P_ROOT}/kernel/include/ -I${P_ROOT}/libc/include/
-LDFLAGS= -ffreestanding -O2 -nostdlib
+include make.conf
 
-ifeq (${DEBUG},1)
-	CFLAGS += -g -D DEBUG
-	LDFLAGS += -g
-	QEMU_FLAGS += -s -S
+ifneq (${DEBUG},0)
+DEBUG = 0
+else
+CFLAGS += -g -D DEBUG
+LDFLAGS += -g
+QEMU_FLAGS += -s -S
 endif
 
 include kernel/arch/${ARCH}/make.config
@@ -28,31 +20,38 @@ export
 
 all: kernel.bin
 
+
+test:
+	@echo $(vpath %.c ./kernel/src)
+
+
+
 doc: ./config.dox
 	doxygen $<
 
-libc/libc.a: $(shell find libc -name *.c)
+libc/lib/libc.a: $(shell find libc/ -not -type d -not -name *.a)
 	make -C libc/ build
 
 packages/*/*.o: packages/*/*.c
 	make -C packages/
 
-kernel.bin: libc/libc.a $(shell find kernel -name *.c -o -name *.s) initrd.o packages/*/*.o
+kernel.bin: libc/lib/libc.a $(shell find kernel -name *.c -o -name *.s) initrd.o packages/*/*.o
 	make -C kernel/ build
 
 run: kernel.bin
 	${QEMU} ${QEMU_FLAGS} -kernel $^
 
 clean:
-	rm -rf *.o initrd.tar kernel.bin doc/doxygen-out/ 
+	-rm *.o initrd.tar doc/doxygen-out/
 	make -C libc/ clean
 	make -C kernel/ clean
+	make -C packages/ clean
 
 
 
 initrd.o: initrd.tar
-	${TARGET}-ld -r -b binary -o $@ $^
-	${TARGET}-objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents $@ $@
+	${TARGET}ld -r -b binary -o $@ $^
+	${TARGET}objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents $@ $@
 
 initrd.tar: ./initrd/
 	tar -c -f $@ $^ -C $^

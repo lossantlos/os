@@ -3,8 +3,16 @@
 
 #include <stdint.h>
 
+/**
+@file pcspkr.h
+*/
+
 void play_sound(uint32_t nFrequence);
 void nosound();
+
+/**
+@brief Use speaker for beep
+*/
 void beep();
 
 #endif

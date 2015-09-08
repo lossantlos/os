@@ -2,10 +2,13 @@
 #ifndef _VGA_H
 #define _VGA_H
 
+/**
+@file vga.h
+@brief Printing on screen thru vga
+*/
+
 #include <stdint.h>
 #include <stddef.h>
-
-#include <kernel/asm.h>
 
 enum vga_color
 {
@@ -27,26 +30,25 @@ enum vga_color
 	COLOR_WHITE = 15,
 };
 
-static inline uint8_t make_color(enum vga_color fg, enum vga_color bg)
+#define VGA_WIDTH	80
+#define VGA_HEIGHT	25
+#define VGA_PTR		(uint16_t *) 0xb8000 ///< Pointer to vga memory
+
+inline uint8_t make_color(enum vga_color fg, enum vga_color bg)
 {
 	return fg | bg << 4;
 }
 
-static inline uint16_t make_vgaentry(char c, uint8_t color)
+inline uint16_t make_vgaentry(char c, uint8_t color)
 {
 	uint16_t c16 = c;
 	uint16_t color16 = color;
 	return c16 | color16 << 8;
 }
 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
-
-static const uint16_t *VGA_PTR = (uint16_t *) 0xB8000;
-
 void vga_init();
 void vga_clear();
-void vga_putentry(uint16_t vgaentry, uint8_t x, uint8_t y);
 void vga_setcursor(uint8_t x, uint8_t y);
+void vga_put(char c, uint8_t color, uint8_t x, uint8_t y);
 
 #endif

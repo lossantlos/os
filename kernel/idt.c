@@ -4,6 +4,21 @@
 struct idt_entry idt[256];
 struct idt_ptr idtp;
 
+/**
+@brief Load new IDT
+*/
+void idt_load(const struct idt_ptr* ptr)
+{
+    __asm__ volatile("lidt %0 \n" : : "m"(*ptr));
+}
+
+/**
+@brief Set IDT gate
+@param num   Number of entry
+@param base  Address of interrupt service rountine
+@param sel   Code segment selector
+@param flags Type and attributes
+*/
 void idt_set_gate(uint8_t num, unsigned long base, unsigned short sel, uint8_t flags)
 {
     /* The interrupt routine's base address */
@@ -17,16 +32,14 @@ void idt_set_gate(uint8_t num, unsigned long base, unsigned short sel, uint8_t f
     idt[num].flags = flags;
 }
 
-void idt_init() //installs the IDT
+/**
+@brief Initialize IDT
+*/
+void idt_init()
 {
-    //sets the special IDT pointer up
     idtp.limit = (sizeof (struct idt_entry) * 256) - 1;
     idtp.base = &idt;
 
     memset(&idt, 0, sizeof(struct idt_entry) * 256); //clear IDT
-
-    //Since this moment add any new ISRs to the IDT idt_set_gate
-
-    //set up new IDT
-    __asm__ __volatile__ ( "lidt %0 \n" : : "m"(idtp) );
+    idt_load(&idtp);
 }

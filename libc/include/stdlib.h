@@ -21,10 +21,6 @@ void *realloc(void *ptr, size_t n);
 
 
 
-
-static inline int getbit(int n, int x)
-{
-    return (n & pow(2, x)) ? 1 : 0;
-}
+#define getbit (n, x) ((n & (1 << x)) ? 1 : 0)
 
 #endif

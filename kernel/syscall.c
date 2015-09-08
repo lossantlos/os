@@ -1,41 +1,57 @@
 
+#include <stddef.h>
+
+#include <kernel/fs.h>
+
 #include <kernel/syscall.h>
-
-
 #include <kernel/regs.h>
 
-static void test()
+typedef int32_t ssize_t;
+
+ssize_t sys_write(int fd, const void *buf, size_t count)
 {
-    printf("trol\n");
+    ssize_t ret = -1;
+    if(fds[fd]->write)
+		ret = fds[fd]->write(fds[fd], buf, count);
+    return ret;
 }
 
-static void *syscall[] = {
-    &test
+void sys_exit(int x)
+{
+    #warning TODO
+}
+
+void sys_none() {};
+
+void *syscall[] = {
+    &sys_none,
+    &sys_exit,
+    0,
+    0,
+//    &sys_fork,
+//    &sys_read,
+    &sys_write
+
 };
 
 void syscall_handler(struct regs *r)
 {
 	if(r->eax >= sizeof(syscall) / sizeof(typeof(syscall))) return;
 
-	void *loc = syscall[r->eax];
+    uint32_t ret = 0;
 
-	uint32_t ret;
-
-	__asm__ (
+	__asm__ volatile(
 		"push %1; "
 		"push %2; "
 		"push %3; "
 		"push %4; "
 		"push %5; "
 		"call *%6; "
-		"pop %%ebx; "
-		"pop %%ebx; "
-		"pop %%ebx; "
-		"pop %%ebx; "
-		"pop %%ebx; "
-
-		: "=a" (ret) : "r" (r->edi), "r" (r->esi), "r" (r->edx),
-		"r" (r->ecx), "r" (r->ebx), "r" (loc));
+        "addl $20, %%esp; " // 5x pop %%ebx
+        "movl %%eax, %0; "
+		: "=m" (ret)
+        : "r" (r->edi), "r" (r->esi), "r" (r->edx), "r" (r->ecx), "r" (r->ebx), "m" (syscall[r->eax])
+        : "eax", "cc");
 
 	r->eax = ret;
 }

@@ -1,7 +1,10 @@
 #ifndef _STRING_H
 #define _STRING_H
 
-#warning external headers
+/**
+@file string.h
+*/
+
 #include <stdint.h>
 #include <stddef.h>
 

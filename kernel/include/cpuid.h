@@ -21,7 +21,7 @@ enum cpuid_ops {
 
 //features
 enum {
-    CPUID_FEAT_ECX_SSE3     = 1 << 0,
+    CPUID_FEAT_ECX_SSE3     = 1 << 0, ///<Streaming SIMD Extensions 3
     CPUID_FEAT_ECX_PCLMUL   = 1 << 1,
     CPUID_FEAT_ECX_DTES64   = 1 << 2,
     CPUID_FEAT_ECX_MONITOR  = 1 << 3,
@@ -80,9 +80,9 @@ enum {
 };
 
 //vendor-strings
-#define CPUID_VENDOR_OLDAMD         "AMDisbetter!" //early engineering samples of AMD K5 processor
-#define CPUID_VENDOR_AMD            "AuthenticAMD"
-#define CPUID_VENDOR_INTEL          "GenuineIntel"
+#define CPUID_VENDOR_OLDAMD         "AMDisbetter!" ///<early engineering samples of AMD K5 processor
+#define CPUID_VENDOR_AMD            "AuthenticAMD" ///<AMD
+#define CPUID_VENDOR_INTEL          "GenuineIntel" ///<intel
 #define CPUID_VENDOR_VIA            "CentaurHauls"
 #define CPUID_VENDOR_OLDTRANSMETA   "TransmetaCPU"
 #define CPUID_VENDOR_TRANSMETA      "GenuineTMx86"
