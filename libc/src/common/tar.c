@@ -1,30 +1,8 @@
 
 #include <tar.h>
+#include <string.h>
 
 
-
-#define TARTYPE_FILE     '0'   //regular file
-#define TARTYPE_SFILE    '\0'  //regular file
-#define TARTYPE_LINK     '1'   //link
-#define TARTYPE_SYMTYPE  '2'   //reserved
-#define TARTYPE_CHARDEV  '3'   //character special
-#define TARTYPE_BLOCKDEV '4'   //block special
-#define TARTYPE_DIR      '5'   //directory
-#define TARTYPE_FIFO     '6'   //FIFO special
-#define TARTYPE_CONTTYPE '7'   //reserved
-
-//owner
-#define TARUREAD   00400       //read
-#define TARUWRITE  00200       //write
-#define TARUEXEC   00100       //execute/search
-//group
-#define TARGREAD   00040       //read
-#define TARGWRITE  00020       //write
-#define TARGEXEC   00010       //execute/search
-//other
-#define TAROREAD   00004       //read
-#define TAROWRITE  00002       //write
-#define TAROEXEC   00001       //execute/search
 
 
 uint32_t tar_data_read(const char *archive, uint32_t address, char *buf, uint32_t count);

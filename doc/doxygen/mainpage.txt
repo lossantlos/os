@@ -1,4 +1,12 @@
 
-/** \mainpage MyProject - A Brief Description.
+/**
+\mainpage OS - A Brief Description.
+
+
+
 this is doc for my os
+
+\author Jakub Kyzek
+\copyright All rights reserved Jakub Kyzek(2015)
+
 */

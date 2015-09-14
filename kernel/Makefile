@@ -28,4 +28,4 @@ SRCS = $(shell find . -not \( -path './arch/*' -prune \) \( -name '*.c' \))
 OBJS = $(SRCS:.c=.o) $(shell echo ${ARCH}_{entry_s,entry_c,common_asm,common_s}.o)
 
 ${P_ROOT}/kernel.bin: ${OBJS} ${P_ROOT}/libc/lib/libc.a ${P_ROOT}/initrd.o ${P_ROOT}/packages/*/*.o
-	${CC} -T arch/${ARCH}/linker.ld -L${P_ROOT}/libc/ -o $@ ${LDFLAGS} $^ -lc
+	${CC} -T arch/${ARCH}/linker.ld -L${P_ROOT}/libc/lib/ -o $@ ${LDFLAGS} $^ -lc

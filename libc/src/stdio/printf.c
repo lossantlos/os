@@ -49,8 +49,8 @@ char *getint(uint32_t n, uint8_t base)
 {
     if(n == 0) return "0";
     static char buf[11] = {0};
-    int val = n;
-	int i = sizeof(buf);
+    uint32_t val = n;
+	uint32_t i = sizeof(buf);
 	for(; val && i ; --i, val /= base) buf[i] = "0123456789abcdef"[val % base];
     return &buf[i+1];
 }

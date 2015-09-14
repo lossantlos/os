@@ -16,7 +16,7 @@ include kernel/arch/${ARCH}/make.config
 
 export
 
-.PHONY: run all clean help debug debug_run doc
+.PHONY: all run clean help debug doc iso todo
 
 all: kernel.bin
 
@@ -47,7 +47,11 @@ clean:
 	make -C kernel/ clean
 	make -C packages/ clean
 
+iso:
+	@echo "Not yet implemented!!!" #TODO
 
+todo:
+	find kernel/ libc/ -type f -print0 | xargs -0 grep "TODO"
 
 initrd.o: initrd.tar
 	${TARGET}ld -r -b binary -o $@ $^

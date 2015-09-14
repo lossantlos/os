@@ -1,11 +1,15 @@
 
 #warning TODO
-/*
+
+#include <stdint.h>
+
+#define size_t uint32_t
+
 void *malloc(size_t size)
 {
-
+    return kmalloc(size);
 }
-
+/*
 void free(void *ptr)
 {
 

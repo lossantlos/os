@@ -5,7 +5,9 @@
 #ifndef _MATH_H
 #define _MATH_H
 
-int pow(int base, int exp);
+#include <stdint.h>
 
+int pow(int base, int exp);
+int32_t abs(int32_t n);
 
 #endif

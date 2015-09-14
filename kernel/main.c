@@ -7,6 +7,7 @@
 
 #include <kernel/asm.h>
 #include <kernel/kernel.h>
+#include <kernel/regs.h>
 
 #include <kernel/tty.h>
 #include <stdlib.h>
@@ -75,6 +76,37 @@ ssize_t read(uint32_t fd, const void *buf, ssize_t nbyte)
 		return fds[fd]->read(fds[fd], buf, nbyte);
 }
 
+char *testt(uint32_t n, uint8_t base)
+{
+    if(n == 0) return "0";
+    static char buf[11] = {0};
+    uint32_t val = n;
+	uint32_t i = sizeof(buf);
+	for(; val && i ; --i, val /= base) buf[i] = "0123456789abcdef"[val % base];
+    return &buf[i+1];
+}
+
+/*
+uint32_t gs, fs, es, ds;      /* pushed the segs last
+uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha'
+uint32_t int_no, err_code;    /* our 'push byte #' and ecodes do this *
+uint32_t eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically *
+
+*/
+
+void regs_dump_handler(struct regs *r)
+{
+//	printf("esp=%s\n", testt(r->esp, 16));
+	printf("\nRegisters dump:\n"
+			"  EAX=%08x EBX=%08x ECX=%08x EDX=%08x\n"
+			"  ESI=%08x EDI=%08x EBP=%08x ESP=%08x\n"
+			"  EIP=%08x EFL=%08x "
+			"\n"
+			,	r->eax, r->ebx, r->ecx, r->edx,
+				r->esi, r->edi, r->ebp, r->esp,
+				r->eip, r->eflags);
+}
+
 void kernel_early(uint32_t magic, uint32_t addr)
 {
 	cli();
@@ -85,6 +117,8 @@ void kernel_early(uint32_t magic, uint32_t addr)
 	paging_init();
 	isrs_init();
 	irq_init();
+	irq_handler_set(0x81, &regs_dump_handler);
+	mm_init();
 	pic_init();
 	kb_init();
 	sti();
@@ -96,21 +130,32 @@ void kernel_early(uint32_t magic, uint32_t addr)
 	if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
 		printf("Magic \'%#x\' invalid!\n", magic);
 		panic("Can't get memory map!\n");
-	} else {
-		multiboot_info_t *mbi = (multiboot_info_t *) addr;
-
-		const char *mmap_type[] = {
-			"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
-		};
-
-		multiboot_memory_map_t *mmap = mbi->mmap_addr;
-		printf("System RAM:\n");
-		for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
-			printf("  %#011x - %#011x %12i bytes  |  %s\n",
-			(uint32_t) mmap[x].addr,
-			(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr, (uint32_t) mmap[x].len,
-			mmap_type[(uint32_t) mmap[x].type]);
 	}
+
+	multiboot_info_t *mbi = (multiboot_info_t *) addr;
+
+	const char *mmap_type[] = {
+		"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
+	};
+
+	multiboot_memory_map_t *mmap = mbi->mmap_addr;
+
+	printf("%x\n", mbi->flags);
+
+	if(mbi->flags & MULTIBOOT_INFO_ELF_SHDR) printf("elf shdr\n");
+	if(mbi->flags & MULTIBOOT_INFO_MEM_MAP) printf("mem map\n");
+	if(mbi->flags & MULTIBOOT_INFO_AOUT_SYMS) printf("aout\n");
+
+
+	printf("System RAM:\n");
+	for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
+		printf("  %#011x - %#011x %12i bytes  |  %s\n",
+			(uint32_t) mmap[x].addr,
+			(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr - 1, (uint32_t) mmap[x].len,
+			mmap_type[(uint32_t) mmap[x].type]);
+
+	printf("Founded PCI devices:\n");
+	pci_init();
 }
 
 
@@ -127,6 +172,7 @@ struct dirent *tar_readdir(fs_node_t *node, uint32_t index)
 		if(i == index)
 		{
 			struct dirent b, *de = &b; //TODO just for testing
+
 
 			strcpy(de->name, a->filename);
 
@@ -151,6 +197,39 @@ void initrd_init()
 extern uint32_t *kernel_end;
 
 
+inline uint32_t _syscall0(uint32_t n)
+{
+	uint32_t ret = 0;
+	__asm__ volatile("int $0x80"
+					: "=a" (ret)
+					: "0" (n)
+					: "cc", "edi", "esi", "memory");
+	return ret;
+}
+
+inline uint32_t _syscall1(uint32_t n, uint32_t p1)
+{
+	uint32_t ret = 0;
+	__asm__ volatile("int $0x80"
+					: "=a" (ret)
+					: "0" (n), "b" (p1)
+					: "cc", "edi", "esi", "memory");
+	return ret;
+}
+
+inline uint32_t _syscall6(uint32_t n, uint32_t p1, uint32_t p2, uint32_t p3, uint32_t p4, uint32_t p5, uint32_t p6)
+{
+	uint32_t ret = 0;
+	__asm__ volatile("int $0x80"
+					: "=a" (ret)
+					: "0" (n), "b" (p1), "c" (p1), "d" (p1), "S" (p1), "D" (p1)
+					: "cc", "edi", "esi", "memory");
+	return ret;
+}
+
+
+
+
 uint32_t syscall_write(uint32_t fd, const char *data, uint32_t len)
 {
 	uint32_t ret = 0;
@@ -161,8 +240,22 @@ uint32_t syscall_write(uint32_t fd, const char *data, uint32_t len)
 	return ret;
 }
 
+
+uint64_t rdtsc(void) {
+	uint64_t tick;
+	__asm__ __volatile__("rdtsc":"=A"(tick));
+    return tick;
+}
+
+
+
+
+
 void kernel_main()
 {
+//	printf("%x%x\n", (uint32_t)(rdtsc() >> 32), (uint32_t)rdtsc());
+
+
 //	uint32_t f1 = open("/tty", 0);
 
 //	write(1, "test\n", 5);
@@ -177,9 +270,23 @@ void kernel_main()
 
 	printf("\n");*/
 
-	printk("Initialized!\\a\n"); //y
+//	__asm__("int $0x81");
 
-	//printf("kernel_end = %x\n", &kernel_end);
+	printk("Initialized!\n"); //y\\a
+
+/*	uint32_t *esp, *ebp;
+	__asm__ ("mov %%esp, %0; mov %%ebp, %1" : "=m"(esp), "=m"(ebp));
+
+	printf("esp=%08x\nebp=%08x\n", &esp, &ebp);
+
+	for(uint32_t x=0; x < 25; x++)
+	{
+		printf("esp[%08x]=%08x%s\n", &esp-x, *(&esp-x), (&esp-x != ebp) ? "" : " <- esp");
+	}*/
+
+
+
+//	printf("kernel_end = %x\n", &kernel_end);
 
 //	initrd_init();
 //	read_rtc();
