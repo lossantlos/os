@@ -1,5 +1,6 @@
 .git
 *.[ao]
+disk.raw
 kernel.bin
 *.DS_Store
 *.tar

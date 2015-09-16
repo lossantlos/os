@@ -197,59 +197,14 @@ void initrd_init()
 extern uint32_t *kernel_end;
 
 
-inline uint32_t _syscall0(uint32_t n)
-{
-	uint32_t ret = 0;
-	__asm__ volatile("int $0x80"
-					: "=a" (ret)
-					: "0" (n)
-					: "cc", "edi", "esi", "memory");
-	return ret;
-}
-
-inline uint32_t _syscall1(uint32_t n, uint32_t p1)
-{
-	uint32_t ret = 0;
-	__asm__ volatile("int $0x80"
-					: "=a" (ret)
-					: "0" (n), "b" (p1)
-					: "cc", "edi", "esi", "memory");
-	return ret;
-}
-
-inline uint32_t _syscall6(uint32_t n, uint32_t p1, uint32_t p2, uint32_t p3, uint32_t p4, uint32_t p5, uint32_t p6)
-{
-	uint32_t ret = 0;
-	__asm__ volatile("int $0x80"
-					: "=a" (ret)
-					: "0" (n), "b" (p1), "c" (p1), "d" (p1), "S" (p1), "D" (p1)
-					: "cc", "edi", "esi", "memory");
-	return ret;
-}
-
-
-
-
-uint32_t syscall_write(uint32_t fd, const char *data, uint32_t len)
-{
-	uint32_t ret = 0;
-	__asm__ volatile("int $0x80"
-					: "=a" (ret)
-					: "0" ((uint32_t)4), "b" (fd), "c" (data), "d" (len)
-					: "cc", "edi", "esi", "memory");
-	return ret;
-}
-
 
 uint64_t rdtsc(void) {
 	uint64_t tick;
-	__asm__ __volatile__("rdtsc":"=A"(tick));
+	__asm__ volatile("rdtsc":"=A"(tick));
     return tick;
 }
 
-
-
-
+#include <syscall.h>
 
 void kernel_main()
 {
@@ -285,7 +240,6 @@ void kernel_main()
 	}*/
 
 
-
 //	printf("kernel_end = %x\n", &kernel_end);
 
 //	initrd_init();
@@ -312,14 +266,17 @@ void kernel_main()
 
 //	__asm__ ("mov $0, %eax; int $70");
 
+	#define sys_write 4
+
 	char *trol = "ahoj\n";
 
 	int32_t ret = 0;
-	ret = syscall_write(2, trol, 5);
+	ret = syscall(sys_write, 2, trol, 5);
 	printf("%i\n", ret);
 
 
-//	__asm__ ("int $0x80");
+	_syscall5(0, 111, 222, 333, 444, 555);
+
 //	extern int shell_cmd_invaders(int, char **);
 //	shell_cmd_invaders(0, NULL);
 	shell();

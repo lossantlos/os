@@ -7,6 +7,20 @@
 #define PCI_CONFIG_DATA         0xcfc
 #define PCI_CONFIG_ADDRESS      0xcf8
 
+
+#define PCI_BAR_UNDEF   0
+#define PCI_BAR_IO      1
+#define PCI_BAR_MEM32   2
+#define PCI_BAR_MEM32   3
+
+typedef struct {
+    union {
+        struct {uint8_t bus:8, device:5, funct:3;} __attribute__ ((packed));
+        uint16_t data;
+    };
+} pci_addr_t;
+
+
 struct pci_device_header_00h
 {
     uint32_t    BAR0:32, //base address 0

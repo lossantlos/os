@@ -38,11 +38,11 @@ packages/*/*.o: packages/*/*.c
 kernel.bin: libc/lib/libc.a $(shell find kernel -name *.c -o -name *.s) initrd.o packages/*/*.o
 	make -C kernel/ build
 
-run: kernel.bin
+run: kernel.bin disk.raw
 	${QEMU} ${QEMU_FLAGS} -kernel $^
 
 clean:
-	-rm *.o initrd.tar doc/doxygen-out/
+	-rm *.o initrd.tar doc/doxygen-out/ disk.raw
 	make -C libc/ clean
 	make -C kernel/ clean
 	make -C packages/ clean
@@ -59,6 +59,12 @@ initrd.o: initrd.tar
 
 initrd.tar: ./initrd/
 	tar -c -f $@ $^ -C $^
+
+disk.raw:
+	qemu-img create -f raw -o size=10M $@
+	#format to ext2
+	#mount
+	#copy files
 
 help:
 	@echo "make [option] <vars>\n\
