@@ -19,7 +19,7 @@ ${ARCH}_%_c.o: arch/${ARCH}/%.c
 ifeq (${DEBUG}, 0)
 .c.o:
 	@echo -en "  CC\t$@\n"
-	@${CC} -c ${CFLAGS} -o $@ $<
+	@${CC} -c ${CFLAGS} -o $@ $< #&> /dev/null #<- for non verbose output
 endif
 
 

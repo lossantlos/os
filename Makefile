@@ -4,7 +4,7 @@ P_ROOT=$(PWD)
 
 include make.conf
 
-ifneq (${DEBUG},0)
+ifneq (${DEBUG},1)
 DEBUG = 0
 else
 CFLAGS += -g -D DEBUG
@@ -42,7 +42,7 @@ run: kernel.bin disk.raw
 	${QEMU} ${QEMU_FLAGS} -kernel $^
 
 clean:
-	-rm *.o initrd.tar doc/doxygen-out/ disk.raw
+	-rm -r *.o initrd.tar doc/doxygen-out/ disk.raw
 	make -C libc/ clean
 	make -C kernel/ clean
 	make -C packages/ clean

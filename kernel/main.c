@@ -134,25 +134,25 @@ void kernel_early(uint32_t magic, uint32_t addr)
 
 	multiboot_info_t *mbi = (multiboot_info_t *) addr;
 
-	const char *mmap_type[] = {
-		"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
-	};
 
-	multiboot_memory_map_t *mmap = mbi->mmap_addr;
+	if(mbi->flags & MULTIBOOT_INFO_ELF_SHDR) printf("ELF shdr\n");
+	if(mbi->flags & MULTIBOOT_INFO_MEM_MAP)
+	{
+		multiboot_memory_map_t *mmap = mbi->mmap_addr;
 
-	printf("%x\n", mbi->flags);
+		printf("System RAM:\n");
 
-	if(mbi->flags & MULTIBOOT_INFO_ELF_SHDR) printf("elf shdr\n");
-	if(mbi->flags & MULTIBOOT_INFO_MEM_MAP) printf("mem map\n");
-	if(mbi->flags & MULTIBOOT_INFO_AOUT_SYMS) printf("aout\n");
+		const char *mmap_type[] = {
+			"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
+		};
 
-
-	printf("System RAM:\n");
-	for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
-		printf("  %#011x - %#011x %12i bytes  |  %s\n",
-			(uint32_t) mmap[x].addr,
-			(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr - 1, (uint32_t) mmap[x].len,
-			mmap_type[(uint32_t) mmap[x].type]);
+		for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
+			printf("  %#011x - %#011x %12i bytes  |  %s\n",
+				(uint32_t) mmap[x].addr,
+				(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr - 1,
+				(uint32_t) mmap[x].len,
+				mmap_type[(uint32_t) mmap[x].type]);
+	}
 
 	printf("Founded PCI devices:\n");
 	pci_init();
@@ -245,6 +245,7 @@ void kernel_main()
 //	initrd_init();
 //	read_rtc();
 
+
 /*	DIR *d = opendir("/");
 	struct dirent *de;
 	while((de = readdir(d)) != NULL)
@@ -266,6 +267,7 @@ void kernel_main()
 
 //	__asm__ ("mov $0, %eax; int $70");
 
+
 	#define sys_write 4
 
 	char *trol = "ahoj\n";
@@ -273,9 +275,6 @@ void kernel_main()
 	int32_t ret = 0;
 	ret = syscall(sys_write, 2, trol, 5);
 	printf("%i\n", ret);
-
-
-	_syscall5(0, 111, 222, 333, 444, 555);
 
 //	extern int shell_cmd_invaders(int, char **);
 //	shell_cmd_invaders(0, NULL);

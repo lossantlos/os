@@ -27,5 +27,4 @@ void pic_wait(int ticks)
 {
     #warning TODO repair BUG caused by variable overflow
     for(unsigned int t = tt + ticks; tt < t;);
-    __asm__("int $0x81");
 }

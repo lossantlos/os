@@ -178,6 +178,10 @@ int printf(const char *format, ...)
                 case 'x':
                     putint((int) va_arg(parameters, int), 16);
                     break;
+                case 'd':
+                #warning TODO 
+                    putint((int) va_arg(parameters, int), 10);
+                    break;
                 case 'p':
                     putint((int) va_arg(parameters, int), 16);
                     break;

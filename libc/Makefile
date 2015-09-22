@@ -23,7 +23,7 @@ clean:
 
 .c.o:
 	$(ECHO) "  CC\t$@\n"
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $< #&> /dev/null #<- for non verbose output
 
 lib/libc.a: $(SRCS:.c=.o)
 	$(ECHO) "  AR\t$@\n"

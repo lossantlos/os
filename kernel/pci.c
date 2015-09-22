@@ -66,12 +66,15 @@ uint32_t pci_config_read32(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offs
 }
 
 
-const char *pci_device_class2string(uint32_t class, uint16_t subclass)
+const char *pci_device_class2string(uint32_t class, uint16_t subclass, uint16_t prog_if)
 {
     switch (class) {
         case 1:
             switch (subclass) {
                 case 1: return "IDE controller";
+                case 6: return (prog_if == 0) ? "Serial ATA (Vendor Specific Interface)"
+                                    : (prog_if == 1) ? "Serial ATA (AHCI 1.0)"
+                                    : "Unknown"; break;
                 default: break;
             }
             break;
@@ -96,8 +99,9 @@ const char *pci_device_class2string(uint32_t class, uint16_t subclass)
             }
             break;
         default:
-            return NULL;
+            break;
     }
+    return NULL;
 }
 
 
@@ -110,7 +114,7 @@ uint8_t checkFunction(uint16_t bus, uint16_t device, uint8_t funct)
 
     printf("  %03i:%02i.%i ", bus, device, funct);
     char *s = NULL;
-    s = pci_device_class2string(i.class, i.subclass);
+    s = pci_device_class2string(i.class, i.subclass, i.prog_if);
     if(s == NULL) printf("class: %x subclass: %x ", i.class, i.subclass);
     else printf("%s: ", s);
 
@@ -119,10 +123,12 @@ uint8_t checkFunction(uint16_t bus, uint16_t device, uint8_t funct)
     switch (i.vendor) {
         case 0x8086: s = "Intel corporation";
             switch(i.device) {
+                case 0x100e: s2 = "82540EM Gigabit Ethernet Controller"; break;
                 case 0x1237: s2 = "i440fx (chipset)"; break;
+                case 0x2922: s2 = "ICH9 6 Port SATA AHCI Controller"; break;
                 case 0x7000: s2 = "82371SB PIIX3 ISA"; break;
                 case 0x7010: s2 = "82371SB PIIX3 IDE"; break;
-                case 0x100e: s2 = "82540EM Gigabit Ethernet Controller"; break;
+                case 0x7113: s2 = "82371AB/BB/MB PIIX4 ACPI"; break;
                 default: s2 = NULL;
             }
             break;
@@ -135,16 +141,16 @@ uint8_t checkFunction(uint16_t bus, uint16_t device, uint8_t funct)
         default: s = NULL; break;
     }
 
-    if(s == NULL) printf("vendorID: %x ", i.vendor);
+    if(s == NULL) printf("vendorID=%x ", i.vendor);
     else printf("%s ", s);
-    if(s2 == NULL) printf("deviceID: %x ", i.device);
+    if(s2 == NULL) printf("deviceID=%x ", i.device);
     else printf("%s ", s2);
     if(i.revision != 0) printf("(rev %i)\n", i.revision);
     else printf("\n");
 
     #warning TODO
 //    rtl8139_init(bus, device, funct);
-
+    ahci_init(bus, device, funct);
 	return 0;
 }
 
