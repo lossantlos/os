@@ -1,7 +1,7 @@
 .git
 *.[ao]
 disk.raw
-kernel.bin
+*.bin
 *.DS_Store
 *.tar
 doc/doxygen-out/

@@ -229,6 +229,16 @@ void kernel_main()
 
 	printk("Initialized!\n"); //y\\a
 
+/*	tar_list_all(_binary_initrd_tar_start);
+	uint32_t fd = open("initrd/flatbinary/test.bin", 0);
+    uint8_t *buf = kmalloc(30);
+    read(fd, buf, 10);
+	for(int x = 0; x < 10; x++) printf("%x ", (uint8_t)buf[x]);
+	printf("\n");
+
+	__asm__("call 0xc010c7dd");*/
+
+
 /*	uint32_t *esp, *ebp;
 	__asm__ ("mov %%esp, %0; mov %%ebp, %1" : "=m"(esp), "=m"(ebp));
 

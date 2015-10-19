@@ -1,4 +1,7 @@
-OUTPUT_FORMAT("binary")
+OUTPUT_FORMAT(binary)
+ENTRY(main)
+
+/*STARTUP(start.o)*/
 
 SECTIONS
 {
