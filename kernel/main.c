@@ -15,7 +15,7 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 
-#include "arch/i386/multiboot.h"
+
 
 #include <tar.h>
 
@@ -107,6 +107,43 @@ void regs_dump_handler(struct regs *r)
 				r->eip, r->eflags);
 }
 
+
+
+#include "arch/i386/multiboot1.h"
+
+void multiboot1_parse(uint32_t addr)
+{
+	multiboot_info_t *mbi = (multiboot_info_t *) addr;
+
+	if(mbi->flags & MULTIBOOT_INFO_ELF_SHDR) printf("ELF shdr\n");
+	if(mbi->flags & MULTIBOOT_INFO_MEM_MAP)
+	{
+		multiboot_memory_map_t *mmap = mbi->mmap_addr;
+			printf("System RAM:\n");
+			const char *mmap_type[] = {
+			"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
+		};
+
+		for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
+		{
+			printf("  %#011x - %#011x %12i bytes  |  %s\n",
+				(uint32_t) mmap[x].addr,
+				(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr - 1,
+				(uint32_t) mmap[x].len,
+				mmap_type[(uint32_t) mmap[x].type]);
+			mm_phys_add((void *) mmap[x].addr, mmap[x].len, (mmap[x].len == 1) ? 0 : 1); //0 available  - 1 full
+		}
+	}
+}
+
+#include "arch/i386/multiboot2.h"
+
+void multiboot2_parse(uint32_t addr)
+{
+	//0x36d76289
+
+}
+
 void kernel_early(uint32_t magic, uint32_t addr)
 {
 	cli();
@@ -127,32 +164,9 @@ void kernel_early(uint32_t magic, uint32_t addr)
 	fds[1]->write = tty_write;
 	nodes = 3;
 
-	if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-		printf("Magic \'%#x\' invalid!\n", magic);
-		panic("Can't get memory map!\n");
-	}
-
-	multiboot_info_t *mbi = (multiboot_info_t *) addr;
-
-
-	if(mbi->flags & MULTIBOOT_INFO_ELF_SHDR) printf("ELF shdr\n");
-	if(mbi->flags & MULTIBOOT_INFO_MEM_MAP)
-	{
-		multiboot_memory_map_t *mmap = mbi->mmap_addr;
-
-		printf("System RAM:\n");
-
-		const char *mmap_type[] = {
-			"0", "AVAILABLE\t", "RESERVED\t", "ACPI_RECLAIMABLE", "NVS\t\t\t", "BADRAM\t\t"
-		};
-
-		for(uint32_t x = 0; x < mbi->mmap_length / sizeof(multiboot_memory_map_t); x++)
-			printf("  %#011x - %#011x %12i bytes  |  %s\n",
-				(uint32_t) mmap[x].addr,
-				(uint32_t) mmap[x].len + (uint32_t) mmap[x].addr - 1,
-				(uint32_t) mmap[x].len,
-				mmap_type[(uint32_t) mmap[x].type]);
-	}
+	if(magic == 0x2BADB002) multiboot1_parse(addr);
+	else if(magic == 0x36d76289) multiboot2_parse(addr);
+	else panic("Invalid magic number (not multiboot)\n");
 
 	printf("Founded PCI devices:\n");
 	pci_init();

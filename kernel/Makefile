@@ -6,7 +6,7 @@ build: ${P_ROOT}/kernel.bin
 clean:
 	rm -rf ./*.o ./*/*.o ${P_ROOT}/kernel.bin
 
-${ARCH}_%_s.o: arch/${ARCH}/%.s
+${ARCH}_%_s.o: arch/${ARCH}/%.S
 	${AS} $^ -o $@
 
 ${ARCH}_%_asm.o: arch/${ARCH}/%.asm
@@ -25,7 +25,7 @@ endif
 
 #ASM_SRCS = $(shell find . -name '*.asm' -o -name '*.s' )
 SRCS = $(shell find . -not \( -path './arch/*' -prune \) \( -name '*.c' \))
-OBJS = $(SRCS:.c=.o) $(shell echo ${ARCH}_{entry_s,entry_c,common_asm,common_s}.o)
+OBJS = $(SRCS:.c=.o) $(shell echo ${ARCH}_{entry_s,entry_c,common_asm,common_s,multiboot2_s}.o)
 
 ${P_ROOT}/kernel.bin: ${OBJS} ${P_ROOT}/libc/lib/libc.a ${P_ROOT}/initrd.o ${P_ROOT}/packages/*/*.o
 	${CC} -T arch/${ARCH}/linker.ld -L${P_ROOT}/libc/lib/ -o $@ ${LDFLAGS} $^ -lc

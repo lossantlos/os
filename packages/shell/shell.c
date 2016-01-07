@@ -166,6 +166,7 @@ void shell()
 		for (int i = 0; shell_cmd[i].name != NULL; i++) {
 			if(!strcmp(argv[0], shell_cmd[i].name))
 			{
+//				printf("\n + history: %s\n", buffer);
 				int r = shell_cmd[i].fce(argc, argv);
 				cmd_found = 1;
 				break;
