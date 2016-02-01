@@ -106,15 +106,14 @@ int printf(const char *format, ...)
     va_list parameters;
 	va_start(parameters, format);
 
-    flags = 0;
-    precision = -1;
-    width = -1;
-
-
     while(*format)
     {
         if (*format == '%')
         {
+            flags = 0;
+            precision = -1;
+            width = -1;
+
             format++;
             switch (*format) {
                 case '+':
@@ -179,7 +178,7 @@ int printf(const char *format, ...)
                     putint((int) va_arg(parameters, int), 16);
                     break;
                 case 'd':
-                #warning TODO 
+                #warning TODO
                     putint((int) va_arg(parameters, int), 10);
                     break;
                 case 'p':
@@ -195,9 +194,6 @@ int printf(const char *format, ...)
         }
         else
         {
-            flags = 0;
-            precision = -1;
-            width = -1;
             putchar(*(format++));
         }
     }

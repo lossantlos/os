@@ -48,7 +48,7 @@ There are few commands:\n\
 
 int shell_cmd_author(int argc, char **argv)
 {
-	printf("Jakub Kyzek (2015)\n");
+	printf("Jakub Kyzek (2016)\n");
 	return 0;
 }
 
@@ -69,6 +69,9 @@ extern int shell_cmd_cpuid(int argc, char **argv);
 extern int shell_cmd_memdump(int argc, char **argv);
 extern int shell_cmd_cat(int argc, char **argv);
 extern int shell_cmd_date(int argc, char **argv);
+extern int shell_cmd_lspci(int argc, char **argv);
+extern int shell_cmd_ls(int argc, char **argv);
+extern int shell_cmd_clear(int argc, char **argv);
 
 #define CMD(NAME) { #NAME, &shell_cmd_ ## NAME }
 struct
@@ -86,6 +89,9 @@ struct
 	CMD(halt),
 	CMD(cpuid),
 	CMD(memdump),
+	CMD(lspci),
+	CMD(ls),
+	CMD(clear),
 	{NULL, NULL}
 };
 #undef CMD
@@ -153,7 +159,7 @@ void shell()
 
 		for (int x = 0; x < pos; x++)
 		{
-			if(buffer[x] == ' ')
+			if(buffer[x] == ' ')// && buffer[x+1] != '\n')
 			{
 				buffer[x] = '\0';
 				argv[++argc] = &buffer[++x];

@@ -29,7 +29,7 @@ libc/lib/libc.a: $(shell find libc/ -not -type d -not -name *.a)
 packages/*/*.o: packages/*/*.c
 	make -C packages/
 
-kernel.bin: libc/lib/libc.a $(shell find kernel -name *.c -o -name *.s) initrd.o packages/*/*.o
+kernel.bin: libc/lib/libc.a $(shell find kernel -name *.c -o -name *.S) initrd.o packages/*/*.o
 	make -C kernel/ build
 
 
@@ -44,7 +44,7 @@ else
 endif
 
 clean:
-	-rm -r *.o initrd.tar doc/doxygen-out/ disk.raw
+	-rm -rf *.o initrd.tar doc/doxygen-out/ disk.raw cdrom.iso
 	make -C libc/ clean
 	make -C kernel/ clean
 	make -C packages/ clean
@@ -58,6 +58,12 @@ initrd.o: initrd.tar
 
 initrd.tar: ./initrd/
 	tar -c -f $@ $^ -C $^
+
+
+cdrom.iso: kernel.bin
+	cp kernel.bin ./filesystem/
+	./tools/bin/grub-mkrescue -o $@ ./filesystem/
+
 
 disk_update: kernel.bin disk.raw
 	sudo ./scripts/disk-image-mount.sh ./disk.raw ./mnt/
