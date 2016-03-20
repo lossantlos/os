@@ -176,6 +176,8 @@ void multiboot2_parse(uint32_t magic, uint32_t addr)
 	if(addr & 7)
 		panic("unaligned mbi");
 
+	return; /////////////////////////////////////////////////////////////////////////////////////////// delete this return for parsing mb2header
+
 	struct multiboot_tag *tag = addr;
 	uint32_t size = tag->type;
 
@@ -449,7 +451,7 @@ void kernel_main()
 
 //	__asm__("int $0x81");
 
-	printk("Initialized!\a\n"); //y\\a
+	printk("Initialized!\n"); //y\\a
 
 
 

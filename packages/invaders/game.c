@@ -93,13 +93,17 @@ void game_draw()
 void win()
 {
     printf("Player WIN!!!");
-    pit_wait(10);
+    while(getchar() != 'q');
+    printf("\n");
+    vga_clear();
 }
 
 void lose()
 {
-    printf("Haha!!!");
-    pit_wait(10);
+    printf("Quit game by (q)");
+    while(getchar() != 'q');
+    printf("\n");
+    vga_clear();
 }
 
 void game()
@@ -148,7 +152,11 @@ void game()
             if((invader[x].x += 1) > SCREEN_SIZE_X)
             {
                 invader[x].x %= SCREEN_SIZE_X;
-                if(invader[x].y++ >= SCREEN_SIZE_Y) return lose(); //TODO player looses
+                if(invader[x].y++ >= SCREEN_SIZE_Y-2)
+                {
+                    lose();
+                    return;
+                }
             }
         }
 
@@ -162,7 +170,11 @@ void game()
                 break;
             }
         }
-        if(a == 0) win();
+        if(a == 0)
+        {
+            win();
+            return;
+        }
 
         //collisions
         for(uint32_t m = 0; m < INVADERS ; m++)

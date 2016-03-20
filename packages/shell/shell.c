@@ -72,6 +72,7 @@ extern int shell_cmd_date(int argc, char **argv);
 extern int shell_cmd_lspci(int argc, char **argv);
 extern int shell_cmd_ls(int argc, char **argv);
 extern int shell_cmd_clear(int argc, char **argv);
+extern int shell_cmd_zero(int argc, char **argv);
 
 #define CMD(NAME) { #NAME, &shell_cmd_ ## NAME }
 struct
@@ -92,6 +93,7 @@ struct
 	CMD(lspci),
 	CMD(ls),
 	CMD(clear),
+	CMD(zero),
 	{NULL, NULL}
 };
 #undef CMD
