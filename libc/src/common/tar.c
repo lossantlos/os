@@ -54,8 +54,6 @@ uint32_t tar_file_read(const char *archive, const char *path, char *buf, uint32_
 
     uint32_t i, size = getsize(h->size);
 
-    printf("%i\n", size);
-
     if(count > size) count = size;
     return tar_read(archive, address+1, buf, count);
 }

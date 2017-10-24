@@ -1,4 +1,4 @@
-
+/*
 #include <kernel/kernel.h>
 #include <stdlib.h>
 
@@ -15,3 +15,4 @@ void *kmalloc(uint32_t size)
 	mem_last += size;
 	return mem_last - size;
 }
+*/

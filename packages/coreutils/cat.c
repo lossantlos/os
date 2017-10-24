@@ -10,6 +10,7 @@ int shell_cmd_cat(int argc, char **argv)
     }
 
     uint32_t fd = open(argv[1], 0);
+	if(!fd) return 1;
 
     char *buf = kmalloc(30);
     read(fd, buf, 30);

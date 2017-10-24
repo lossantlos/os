@@ -11,11 +11,6 @@ void hexdump(void *ptr)
     printf("\n");
 }
 
-int atoi(char *n)
-{
-    return 10;
-}
-
 int shell_cmd_memdump(int argc, char **argv)
 {
     printf("%i\n", argc);
@@ -24,7 +19,7 @@ int shell_cmd_memdump(int argc, char **argv)
         printf("%s <address> [count]\n", argv[0]);
         return 1;
     }
-    
+
     if(argc == 2) size = atoi(argv[2]);
     hexdump(atoi(argv[1]));
     return 0;

@@ -3,27 +3,27 @@
 
 volatile static unsigned int tt = 0; //pic ticks
 
-void pic_handler(struct regs *r)
+void pit_handler(struct regs *r)
 {
     tt++; //18.222Hz
 }
 
-void pic_init()
+void pit_init()
 {
-    irq_handler_set(IRQ0, pic_handler);
+    irq_handler_set(IRQ0, pit_handler);
 }
 
-void pic_ticks()
+void pit_ticks()
 {
     return tt;
 }
 
-void pic_reset()
+void pit_reset()
 {
     tt = 0;
 }
 
-void pic_wait(int ticks)
+void pit_wait(int ticks)
 {
     #warning TODO repair BUG caused by variable overflow
     for(unsigned int t = tt + ticks; tt < t;);

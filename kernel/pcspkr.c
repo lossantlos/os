@@ -25,6 +25,6 @@ void nosound()
 void beep()
 {
     play_sound(1000);
-	pic_wait(7);
+	pit_wait(7);
     nosound();
  }

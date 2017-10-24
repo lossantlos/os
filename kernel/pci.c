@@ -185,3 +185,69 @@ void pci_init()
                        checkFunction(bus, device, function);
        }
 }
+
+
+
+
+
+
+
+
+
+//TODO remove? just for maturita purpose
+uint8_t pci_check_simple(uint16_t bus, uint16_t device, uint8_t funct)
+{
+    pci_device_info i;
+    pci_device_info_read(bus, device, funct, &i);
+
+    if(i.vendor == 0xffff) return;
+
+    printf("%04x:%04x ", i.vendor, i.device);
+	return 0;
+
+}
+
+
+void pci_print_list()
+{
+    //check all buses
+    for(uint16_t bus = 0; bus < 256; bus++)
+       for(uint16_t device = 0; device < 32; device++)
+       {
+           uint16_t function = 0;
+           if(pci_vendor_get(bus, device, function) == 0xFFFF) continue; // Device doesn't exist
+
+
+           pci_device_info i;
+           pci_device_info_read(bus, device, function, &i);
+
+           pci_check_simple(bus, device, function);
+           if((i.header_type & 0x80) != 0) // It is a multi-function device, so check remaining functions
+               for(function = 1; function < 8; function++)
+                   if(pci_vendor_get(bus, device, function) != 0xFFFF)
+                        pci_check_simple(bus, device, function);
+       }
+
+}
+
+void pci_print_list_detailed()
+{
+    //check all buses
+    for(uint16_t bus = 0; bus < 256; bus++)
+       for(uint16_t device = 0; device < 32; device++)
+       {
+           uint16_t function = 0;
+           if(pci_vendor_get(bus, device, function) == 0xFFFF) continue; // Device doesn't exist
+
+
+           pci_device_info i;
+           pci_device_info_read(bus, device, function, &i);
+
+           checkFunction(bus, device, function);
+           if((i.header_type & 0x80) != 0) // It is a multi-function device, so check remaining functions
+               for(function = 1; function < 8; function++)
+                   if(pci_vendor_get(bus, device, function) != 0xFFFF)
+                       checkFunction(bus, device, function);
+       }
+
+}

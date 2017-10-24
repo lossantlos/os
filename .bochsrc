@@ -1,0 +1,5 @@
+memory: guest=512, host=256
+pci: enabled=1, chipset=i430fx
+#gdbstub: enabled=1, port=1234
+ata0-master: type=disk, path="./disk.raw"
+boot: disk

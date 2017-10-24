@@ -93,13 +93,17 @@ void game_draw()
 void win()
 {
     printf("Player WIN!!!");
-    pic_wait(10);
+    while(getchar() != 'q');
+    printf("\n");
+    vga_clear();
 }
 
 void lose()
 {
-    printf("Haha!!!");
-    pic_wait(10);
+    printf("Quit game by (q)");
+    while(getchar() != 'q');
+    printf("\n");
+    vga_clear();
 }
 
 void game()
@@ -110,7 +114,7 @@ void game()
     uint8_t k = 0;
 
     while (1) {
-        pic_wait(1);
+        pit_wait(1);
         //input
         while((k = getchar_nonblock()))
         {
@@ -148,8 +152,28 @@ void game()
             if((invader[x].x += 1) > SCREEN_SIZE_X)
             {
                 invader[x].x %= SCREEN_SIZE_X;
-                if(invader[x].y++ >= SCREEN_SIZE_Y) return lose(); //TODO player looses
+                if(invader[x].y++ >= SCREEN_SIZE_Y-2)
+                {
+                    lose();
+                    return;
+                }
             }
+        }
+
+        //check winning conditions
+        uint32_t a = 0;
+        for(uint32_t x = 0; x < INVADERS; x++)
+        {
+            if(invader[x].x >= 0)
+            {
+                a++;
+                break;
+            }
+        }
+        if(a == 0)
+        {
+            win();
+            return;
         }
 
         //collisions
