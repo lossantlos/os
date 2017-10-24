@@ -9,6 +9,8 @@ int menu()
     switch (choice) {
         case '1': //play
             printf("Play\n");
+            game_reset();
+            game();
             break;
         case '2': //help
             printf("This is help for Invaders game\n----------------\n\nuse keys to move spaceship...\n");

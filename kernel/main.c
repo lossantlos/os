@@ -227,7 +227,7 @@ void kernel_main()
 
 //	__asm__("int $0x81");
 
-	printk("Initialized!\n"); //y\\a
+	printk("Initialized!\n\a"); //y\\a
 
 /*	uint32_t *esp, *ebp;
 	__asm__ ("mov %%esp, %0; mov %%ebp, %1" : "=m"(esp), "=m"(ebp));
@@ -252,7 +252,7 @@ void kernel_main()
 		printf("%s\n", de->name);
 	closedir(d);*/
 
-//	tar_list_all(_binary_initrd_tar_start);
+	tar_list_all(_binary_initrd_tar_start);
 
 /*	while(1)
 	{
@@ -271,6 +271,8 @@ void kernel_main()
 	#define sys_write 4
 
 	char *trol = "ahoj\n";
+
+
 
 	int32_t ret = 0;
 	ret = syscall(sys_write, 2, trol, 5);

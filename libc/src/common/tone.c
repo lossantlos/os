@@ -1,6 +1,8 @@
 
 #include <pcspkr.h>
 
+#define char2int(x) (x+'a')
+
 /*
 	// C2 D2 E2 G2 E2 D2 C2 - LOTR
 	tone("c4", 6);
@@ -41,6 +43,6 @@ void tone(const char c[2], int time)
 
 	f *= char2int(c[1]);
 	play_sound(f);
-	timer_wait(time);
+	pic_wait(time);
 	nosound();
 }

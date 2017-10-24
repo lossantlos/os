@@ -15,7 +15,7 @@
 
 #define INVADERS        40
 #define INVADER_OFFSET  22
-#define SHOTS_MAX       3
+#define SHOTS_MAX       30
 
 const char invader_graphics[] = "-*-";
 const char player_graphics[] = "/-^-\\";
@@ -172,8 +172,8 @@ void game()
 
 int shell_cmd_invaders(int argc, char **argv)
 {
-    game_reset();
-    game();
-    //while(menu() != MENU_QUIT);
+//    game_reset();
+//    game();
+    while(menu() != MENU_QUIT);
     return 0;
 }

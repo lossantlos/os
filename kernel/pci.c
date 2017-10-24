@@ -150,7 +150,7 @@ uint8_t checkFunction(uint16_t bus, uint16_t device, uint8_t funct)
 
     #warning TODO
 //    rtl8139_init(bus, device, funct);
-    ahci_init(bus, device, funct);
+//    ahci_init(bus, device, funct);
 	return 0;
 }
 
